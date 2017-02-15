@@ -9,6 +9,8 @@ let gutil = require('gulp-util');
 let uglify = require('gulp-uglify');
 let webpack = require('webpack');
 let sourcemaps = require('gulp-sourcemaps');
+let sass = require('gulp-sass');
+let autoprefixer = require('gulp-autoprefixer');
 
 let dev = process.env.NODE_ENV === 'dev';
 
@@ -23,6 +25,8 @@ let dirs = {
   imagesDist: 'images',
   js: 'scripts',
   jsDist: '',
+  styles: 'sass',
+  stylesDist: ''
 };
 
 let files = {
@@ -93,6 +97,33 @@ gulp.task('browsersync', () => {
   });
 });
 
+gulp.task('sass', () => {
+  return gulp.src(dirs.src + '/' + dirs.styles + '/' + files.mainStyles + '.scss')
+    .pipe(sass())
+    .pipe(autoprefixer())
+    .pipe(gulp.dest(dirs.dist + '/' + dirs.stylesDist));
+});
+
+gulp.task('sass:development', () => {
+  return gulp.src(dirs.src + '/' + dirs.styles + '/' + files.mainStyles + '.scss')
+    .pipe(sourcemaps.init())
+    .pipe(sass().on('error', sass.logError))
+    .pipe(autoprefixer())
+    .pipe(sourcemaps.write('.'))
+    .pipe(gulp.dest(dirs.dist + '/' + dirs.stylesDist))
+    .pipe(browserSync.stream({match: "**/*.css"}));
+});
+
+gulp.task('minify-css', ['sass'], () => {
+  return gulp.src(dirs.dist + '/' + dirs.stylesDist + '/' + files.mainStylesDist + '.css')
+    .pipe(cssnano({
+      discardComments: {
+        removeAll: true
+      }
+    }))
+    .pipe(gulp.dest(dirs.dist + '/' + dirs.stylesDist));
+});
+
 gulp.task('eslint', () => {
   return gulp.src([dirs.src + '/' + dirs.js + '/**/*', '!node_modules/**', '!bower_components/**'])
     .pipe(eslint())
@@ -120,11 +151,12 @@ gulp.task('reload', () => {
 });
 
 gulp.task('watch', () => {
+  gulp.watch(dirs.src + '/' + dirs.styles + '/**/*.scss', ['sass:development']);
   gulp.watch(dirs.src + '/' + dirs.js + '/**/*', ['eslint']);
 });
 
 
-gulp.task('webpack', (callback) => {
+gulp.task('webpack', ['sass'], (callback) => {
   let isFirstRun = true;
 
   webpack(webpackConfig, (err, stats) => {
@@ -151,8 +183,8 @@ gulp.task('webpack', (callback) => {
   });
 });
 
-gulp.task('default', ['webpack', 'images']);
+gulp.task('default', ['webpack', 'sass', 'images']);
 
-gulp.task('dist', ['default', 'minify-js']);
+gulp.task('dist', ['default', 'minify-css', 'minify-js']);
 
-gulp.task('livereload', ['webpack', 'images', 'browsersync', 'watch']);
+gulp.task('livereload', ['webpack', 'images', 'sass:development', 'browsersync', 'watch']);
