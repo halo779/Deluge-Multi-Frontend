@@ -1,0 +1,15 @@
+div {
+    border: solid #D64078 3px;
+}
+
+.application_view {
+    display: -webkit-flex;
+    display: flex;
+}
+
+.application_sidebar {
+    width: 200px;
+}
+.application_content {
+    width: 100%;
+}
