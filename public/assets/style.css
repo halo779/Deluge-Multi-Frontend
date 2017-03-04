@@ -458,6 +458,10 @@ html {
   -webkit-font-smoothing: antialiased;
   /* [5] */ }
 
+.icon {
+  max-height: 64px;
+  max-width: 64px; }
+
 th {
   font-weight: inherit;
   text-align: left; }

@@ -5,9 +5,10 @@
 @import "../../node_modules/inuit-reset/generic.reset";
 @import "../../node_modules/inuit-box-sizing/generic.box-sizing";
 @import "../../node_modules/inuit-page/base.page";
+@import "components/icons";
 
 @import "tools/vars";
-@import "tools/reset"; 
+@import "tools/reset";
 
 @import "base/layout";
 @import "base/main";
